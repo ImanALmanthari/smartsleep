@@ -11,7 +11,7 @@
 /// is configured with [baseUrl] as its base, so you only need the path portion.
 class ApiConstants {
   /// The base URL of the deployed backend server (hosted on Render.com).
-  static const String baseUrl = 'https://smartsleep-backend.onrender.com/';
+  static const String baseUrl = 'https://smartsleep-backend-eugz.onrender.com';
 
   // ── Authentication endpoints ──────────────────────────────────────────────
   static const String signup             = '/api/v1/auth/signup';
