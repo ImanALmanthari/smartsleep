@@ -17,8 +17,8 @@ import 'package:http/http.dart' as http;
 
 /// Client-side email relay via Google Apps Script.
 ///
-/// All 5 notification scenarios (signup, login, report, profile update,
-/// password reset) are now handled server-side (backend → Google Script).
+/// All 7 notification scenarios (signup, login, report, email export, profile update,
+/// password reset, password forget) are now handled server-side (backend → Google Script).
 /// This class is kept for any future client-triggered emails.
 ///
 /// Usage:
