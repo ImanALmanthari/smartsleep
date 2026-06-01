@@ -21,10 +21,6 @@ class SleepHistoryScreen extends ConsumerWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Sleep History', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart_rounded, color: Colors.white),

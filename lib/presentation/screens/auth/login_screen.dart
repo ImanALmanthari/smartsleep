@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../app/routes.dart';
 import '../../widgets/common/primary_button.dart';
 
@@ -37,6 +38,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// 1. Validates all form fields (required, email format, min length)
   /// 2. If valid, calls the auth notifier's login() method
   /// 3. Shows a SnackBar if login fails
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => _ForgotPasswordDialog(
+        onSubmit: (email) => ref.read(authRepositoryProvider).resetPassword(email),
+      ),
+    );
+  }
+
   void _login() async {
     // saveAndValidate() runs all validators and saves field values to the form state.
     // Returns false if any validator fails.
@@ -152,7 +162,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: _showForgotPasswordDialog,
                   child: const Text('Forgot Password?'),
                 ),
               ),
@@ -187,6 +197,96 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ForgotPasswordDialog extends StatefulWidget {
+  const _ForgotPasswordDialog({required this.onSubmit});
+  final Future<void> Function(String email) onSubmit;
+
+  @override
+  State<_ForgotPasswordDialog> createState() => _ForgotPasswordDialogState();
+}
+
+class _ForgotPasswordDialogState extends State<_ForgotPasswordDialog> {
+  final _ctrl = TextEditingController();
+  bool _isSubmitting = false;
+  bool _success = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final email = _ctrl.text.trim();
+    if (email.isEmpty) {
+      setState(() => _error = 'Please enter your email address.');
+      return;
+    }
+    setState(() { _isSubmitting = true; _error = null; });
+    try {
+      await widget.onSubmit(email);
+      if (mounted) setState(() { _isSubmitting = false; _success = true; });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+          _error = e is ApiException ? e.message : 'Something went wrong. Please try again.';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Reset Password'),
+      content: _success
+          ? const Text('A new password has been sent to your email address.')
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Enter your email and we'll send you a new password."),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _ctrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    hintText: 'e.g. name@example.com',
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+                ],
+              ],
+            ),
+      actions: _success
+          ? [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Done'),
+              ),
+            ]
+          : [
+              TextButton(
+                onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: _isSubmitting ? null : _submit,
+                child: _isSubmitting
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Send'),
+              ),
+            ],
     );
   }
 }

@@ -70,6 +70,11 @@ class AuthRepository {
     await _storage.deleteToken();
   }
 
+  /// Sends a password reset email with a new randomly-generated password.
+  Future<void> resetPassword(String email) async {
+    await _apiClient.post(ApiConstants.resetPassword, data: {'email': email});
+  }
+
   /// Checks if the user is currently logged in (has a stored JWT token).
   ///
   /// Note: This only checks whether a token EXISTS on the device.

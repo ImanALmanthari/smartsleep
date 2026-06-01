@@ -15,7 +15,7 @@ import '../constants/app_constants.dart';
 
 /// Provides type-safe access to the device's encrypted key-value storage.
 ///
-/// All sensitive data (JWT tokens, user profile cache) should be stored
+/// All sensitive data (JWT Token, user profile cache) should be stored
 /// through this class, never using shared_preferences or file storage.
 class SecureStorage {
   // The underlying FlutterSecureStorage instance.
